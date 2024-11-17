@@ -5,6 +5,9 @@ import {
 	CART_SAVE_SHIPPING_ADDRESS,
 	CART_SAVE_PAYMENT_METHOD,
 	CART_SAVE_APPOINTMENT_DETAILS,
+	SALON_LIST_REQUEST,
+	SALON_LIST_SUCCESS,
+	SALON_LIST_FAIL,
 } from '../constants/cartConstants'
 
 // Actions to add a single product to the cart
@@ -52,3 +55,34 @@ export const saveAppointmentDetails = (data) => (dispatch) => {
 	})
 	localStorage.setItem('appointmentDetails', JSON.stringify(data))
 }
+
+export const getSalons = () => async (dispatch, getState) => {
+    try {
+        dispatch({ type: SALON_LIST_REQUEST });
+
+        const {
+            userLogin: { userInfo },
+        } = getState();
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${userInfo.token}`,
+            },
+        };
+
+        const { data } = await axios.get('/api/orders/salons', config);
+		console.log(data)
+        dispatch({
+            type: SALON_LIST_SUCCESS,
+            payload: data,
+        });
+    } catch (error) {
+        dispatch({
+            type: SALON_LIST_FAIL,
+            payload:
+                error.response && error.response.data.message
+                    ? error.response.data.message
+                    : error.message,
+        });
+    }
+};

@@ -1,5 +1,8 @@
 import asyncHandler from 'express-async-handler'
 import Order from '../models/orderModel.js'
+import Salon from '../models/salonModel.js'
+import mongoose from 'mongoose'
+import Specialist from '../models/specialistModel.js'
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -15,6 +18,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
 		totalPrice,
 		date,
 		time,
+		salon,
 		specialist,
 	} = req.body
 
@@ -24,6 +28,12 @@ const addOrderItems = asyncHandler(async (req, res) => {
 		throw new Error('No order items')
 		return
 	} else {
+		if (!mongoose.Types.ObjectId.isValid(salon) || !mongoose.Types.ObjectId.isValid(specialist)) {
+			res.status(400);
+			throw new Error('Invalid salon or specialist ID');
+			return;
+		}
+		
 		const order = new Order({
 			orderItems,
 			user: req.user._id,
@@ -35,6 +45,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
 			totalPrice,
 			date,
 			time,
+			salon,
 			specialist,
 		})
 
@@ -43,6 +54,16 @@ const addOrderItems = asyncHandler(async (req, res) => {
 		res.status(201).json(createdOrder)
 	}
 })
+
+const getSalonsWithSpecialists = asyncHandler(async (req, res) => {
+    const salons = await Salon.find().populate('specialists');
+    if (salons) {
+        res.json(salons);
+    } else {
+        res.status(404);
+        throw new Error('Salons not found');
+    }
+});
 // @desc    Get order by id
 // @route   GET /api/orders/:id
 // @access  Private
@@ -121,4 +142,5 @@ export {
 	getMyOrders,
 	getOrders,
 	updateOrderToDelivered,
+	getSalonsWithSpecialists,
 }

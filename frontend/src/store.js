@@ -28,6 +28,7 @@ import {
 	orderListReducer,
 	orderDeliverReducer,
 } from './reducers/orderReducers'
+import { salonListReducer } from './reducers/salonReducers';
 
 const reducer = combineReducers({
 	productList: productListReducer,
@@ -51,6 +52,7 @@ const reducer = combineReducers({
 	orderList: orderListReducer,
 	productReviewCreate: productReviewCreateReducer,
 	productTopRated: productTopRatedReducer,
+	salonList: salonListReducer,
 })
 
 // Get cartItems from local storage

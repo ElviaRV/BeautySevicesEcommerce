@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col, ListGroup, Image, Form, Button, Card } from 'react-bootstrap'
 import Message from '../components/Message'
-import { addToCart, removeFromCart, saveAppointmentDetails } from '../actions/cartActions'
+import { addToCart, removeFromCart, saveAppointmentDetails, getSalons } from '../actions/cartActions'
 
 const CartScreen = ({ match, location, history }) => {
 	const productId = match.params.id
@@ -13,8 +13,21 @@ const CartScreen = ({ match, location, history }) => {
 	const [date, setDate] = useState('')
 	const [time, setTime] = useState('')
 	const [specialist, setSpecialist] = useState('')
+	const [salon, setSalon] = useState('')
 
 	const dispatch = useDispatch()
+
+	const salonList = useSelector((state) => state.salonList)
+	const { loading, error, salons } = salonList
+	// const salons = [_id:]
+	console.log(salonList)
+	console.log(salons)
+	console.log(error)
+	console.log(loading)
+	useEffect(() => {
+		dispatch(getSalons())
+	}, [dispatch])
+
 
 	const cart = useSelector((state) => state.cart)
 	const { cartItems } = cart
@@ -30,7 +43,7 @@ const CartScreen = ({ match, location, history }) => {
 	}
 
 	const checkoutHandler = () => {
-		dispatch(saveAppointmentDetails({ date, time, specialist }))
+		dispatch(saveAppointmentDetails({ date, time, salon, specialist }))
 		history.push('/login?redirect=payment')
 	}
 
@@ -99,14 +112,42 @@ const CartScreen = ({ match, location, history }) => {
 										</Form.Group>
 									</Col>
 									<Col md={12}>
+										<Form.Group controlId='salon'>
+											<Form.Label>Salon</Form.Label>
+											<Form.Control
+												as='select'
+												placeholder='Enter salon'
+												value={salon}
+												onChange={(e) => setSalon(e.target.value)}
+											>
+												<option>Select Salon</option>
+                                            	{salons.map((salon) => (
+                                                <option key={salon._id} value={salon._id}>
+                                                    {salon.name}
+                                                </option>
+                                            ))}
+											</Form.Control>
+										</Form.Group>
+									</Col>
+									<Col md={12}>
 										<Form.Group controlId='specialist'>
 											<Form.Label>Specialist</Form.Label>
 											<Form.Control
-												type='text'
+												as='select'
 												placeholder='Enter specialist'
 												value={specialist}
 												onChange={(e) => setSpecialist(e.target.value)}
-											></Form.Control>
+												disabled={!salon}
+											>
+												<option>Select Specialist</option>
+                                            	{
+													salons.find((s) => s._id === salon)?.specialists.map((specialist) => (
+														<option key={specialist._id} value={specialist._id}>
+															{specialist.name}
+														</option>
+													))
+												}
+											</Form.Control>
 										</Form.Group>
 									</Col>
 								</Row>
