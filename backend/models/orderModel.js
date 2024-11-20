@@ -22,7 +22,17 @@ const orderSchema = mongoose.Schema(
 		],
 		date: { type: Date, required: true },
 		time: { type: String, required: true },
-		specialist: { type: String, required: true },
+		// specialist: { type: String, required: true },
+		salon: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Salon',
+			required: true,
+		},
+		specialist: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Specialist',
+			required: true,
+		},
 		totalPrice: {
 			type: Number,
 			required: true,
